@@ -39,10 +39,10 @@ public class Personne {
 
 
     public void save() throws SQLException{
-        if (this.id == -1){
-            this.saveNew();
-        }else{
+        if (this.id != -1) {
             this.update();
+        } else {
+            this.saveNew();
         }
     }
 
@@ -153,11 +153,11 @@ public class Personne {
                 stmt.executeUpdate(commandes[i]);
             }
         }catch (SQLException e){
-            if (e.getErrorCode()==1050){
+            /*if (e.getErrorCode()==1050){
                 throw new SQLException("Table déjà existante");
             }else{
                 throw new SQLException();
-            }
+            }*/
         }
     }
 
@@ -173,5 +173,10 @@ public class Personne {
     public String getNom(){return this.nom;}
     public String getPrenom(){return this.prenom;}
     public Integer getId(){return this.id;}
+
+    public void setId(int id){this.id = id;}
+    public void setNom(String nom){this.nom = nom;}
+    public void setPrenom(String prenom){this.prenom = prenom;}
+
 
 }
