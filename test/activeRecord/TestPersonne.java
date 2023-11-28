@@ -14,7 +14,47 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class TestPersonne {
+public class TestPersonne{
+
+
+    @BeforeEach
+    public void setUp() throws SQLException{
+        String[] commandes = {
+            "DROP TABLE IF EXISTS Personne",
+
+            "CREATE TABLE `Personne` (\n" +
+                    "  `id` int(11) NOT NULL,\n" +
+                    "  `nom` varchar(40) NOT NULL,\n" +
+                    "  `prenom` varchar(40) NOT NULL\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=latin1",
+
+            "ALTER TABLE `Personne`\n" +
+                    "  ADD PRIMARY KEY (`id`)",
+
+            "ALTER TABLE `Personne`\n" +
+                    "  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT"
+        };
+
+        Personne[] personnes = {
+                new Personne("Spielberg", "Steven"),
+                new Personne("Scott", "Ridley"),
+                new Personne("Kubrick", "Stanley"),
+                new Personne("Fincher", "David"),
+                new Personne("Fincher", "Tom")
+        };
+
+        Connection connect = DBConnection.getConnection();
+        for (int i=0; i<commandes.length; i++){
+            Statement stmt = connect.createStatement();
+            stmt.executeUpdate(commandes[i]);
+        }
+
+        for (int i=0; i<personnes.length; i++){
+            personnes[i].save();
+        }
+
+    }
+
 
     @Test
     public void test_Personne() throws SQLException {
@@ -125,5 +165,34 @@ public class TestPersonne {
 
         ArrayList<Personne> liste3 = Personne.findByName("Test");
         assertEquals(0, liste3.size());
+    }
+
+    @Test
+    public void test_createTable() throws SQLException{
+        try{
+            Personne.createTable();
+            fail("Une exeception aurait dû être levée");
+        } catch (SQLException e) {
+            assertNotNull(e.getMessage());
+        }
+
+        Connection connect = DBConnection.getConnection();
+        Statement stat = connect.createStatement();
+        stat.execute("DROP TABLE IF EXISTS Personne");
+
+        Personne.createTable();
+    }
+
+    @Test
+    public void test_save() throws SQLException {
+        Personne p1 = new Personne("nom1", "prenom1");
+        assertEquals(-1, p1.getId());
+        p1.save();
+        assertEquals(6, p1.getId());
+
+        Personne p2 = Personne.findById(1);
+        assertEquals(1, p2.getId());
+        p2.save();
+        assertEquals(1, p2.getId());
     }
 }
